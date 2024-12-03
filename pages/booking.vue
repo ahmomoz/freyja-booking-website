@@ -1,9 +1,7 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template>
   <NuxtPage></NuxtPage>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
