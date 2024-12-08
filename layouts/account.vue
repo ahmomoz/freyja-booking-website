@@ -1,4 +1,12 @@
 <script setup>
+// 判斷是否已登入，是的話彈回首頁
+const token = useCookie("auth");
+onMounted(() => {
+  if (token.value) {
+    navigateTo("/");
+  }
+});
+
 </script>
 
 <template>
@@ -104,7 +112,7 @@
         </picture>
         
         <main class="position-relative w-100 w-md-50">
-          <RouterView />
+          <NuxtPage></NuxtPage>
         </main>
       </div>
     </div>

@@ -2,6 +2,17 @@
 const router = useRouter();
 const route = useRoute();
 
+const { $swal } = useNuxtApp();
+const { $formatPrice } = useNuxtApp();
+
+// 引入 dateTimeStore 相關資料
+const dateTimeStore = useDateTimeStore();
+const { bookingPeople } = storeToRefs(dateTimeStore);
+const { daysCount } = storeToRefs(dateTimeStore);
+const { bookingDate } = dateTimeStore;
+const bookingStore = useBookingStore();
+const { createBooking } = bookingStore;
+
 const { id } = route.params;
 
 const { data: roomList } = await useFetch(`/rooms/${id}`, {
@@ -13,7 +24,7 @@ const { data: roomList } = await useFetch(`/rooms/${id}`, {
   onResponseError({ response }) {
     const { message } = response._data;
     console.error("Error", message);
-    router.push("/");
+    navigateTo("/");
   },
 });
 
@@ -23,41 +34,43 @@ const openModal = () => {
   datePickerModal.value.openModal();
 };
 
-
 const MAX_BOOKING_PEOPLE = roomList.value.maxPeople;
-const bookingPeople = ref(1);
-const daysCount = ref(0);
 
 const daysFormatOnMobile = (date) => date?.split("-").slice(1, 3).join(" / ");
 
-const formatDate = (date) => {
-  const offsetToUTC8 = date.getHours() + 8;
-  date.setHours(offsetToUTC8);
-  return date.toISOString().split("T")[0];
+// 計算天數
+const countDateDiffs = ({ start, end }) => {
+  var startDate = new Date(start);
+  var endDate = new Date(end);
+  return parseInt(Math.abs(startDate - endDate) / 1000 / 60 / 60 / 24);
 };
 
-const currentDate = new Date();
+const toReserve = () => {
+  const roomId = roomList.value._id;
+  const peopleNum = bookingPeople.value;
+  const checkInDate = bookingDate.date.start;
+  const checkOutDate = bookingDate.date.end;
 
-const bookingDate = reactive({
-  date: {
-    start: formatDate(currentDate),
-    end: null,
-  },
-  minDate: new Date(),
-  maxDate: new Date(currentDate.setFullYear(currentDate.getFullYear() + 1)),
-});
+  if (!checkInDate || !checkOutDate) {
+    $swal.fire({
+      position: "center",
+      icon: "error",
+      title: "請選擇入住與退房日期",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+    return;
+  }
 
-const handleDateChange = (bookingInfo) => {
-  const { start, end } = bookingInfo.date;
-  bookingDate.date.start = start;
-  bookingDate.date.end = end;
+  createBooking({
+    roomId,
+    peopleNum,
+    checkInDate,
+    checkOutDate,
+    bookingDays: countDateDiffs(bookingDate.date),
+  });
 
-  bookingPeople.value = bookingInfo?.people || 1;
-  daysCount.value = bookingInfo.daysCount;
-};
-
-const formatPrice = (price) => {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  router.push(`/room/${roomList.value._id}/booking`);
 };
 
 useSeoMeta({
@@ -109,13 +122,13 @@ useSeoMeta({
             </div>
           </div>
         </div>
-        <button
+        <NuxtLink
           class="position-absolute btn btn-primary-10 px-8 py-4 me-3 text-primary-100 border-primary-100 fw-bold rounded-3"
           style="bottom: 40px; right: 40px"
-          type="button"
+          to="/room"
         >
           看更多
-        </button>
+        </NuxtLink>
       </div>
       <div class="d-md-none position-relative">
         <img
@@ -123,13 +136,13 @@ useSeoMeta({
           src="@/public/images/room-a-1.png"
           alt="room-a-1"
         />
-        <button
+        <NuxtLink
           class="position-absolute btn btn-primary-10 px-8 py-4 text-primary-100 border-primary-100 fw-bold rounded-3"
           style="bottom: 23px; right: 12px"
-          type="button"
+          to="/room"
         >
           看更多
-        </button>
+        </NuxtLink>
       </div>
     </section>
 
@@ -425,17 +438,14 @@ useSeoMeta({
               </div>
 
               <h5 class="mb-0 text-primary-100 fw-bold">
-                NT$ {{ formatPrice(roomList.price) }}
+                NT$ {{ $formatPrice(roomList.price) }}
               </h5>
-              <NuxtLink
-                :to="{
-                  name: 'booking',
-                  params: { roomId: $route.params.roomId },
-                }"
+              <button
                 class="btn btn-primary-100 py-4 text-neutral-0 fw-bold rounded-3"
+                @click="toReserve"
               >
                 立即預訂
-              </NuxtLink>
+              </button>
             </div>
           </div>
         </div>
@@ -465,21 +475,17 @@ useSeoMeta({
               {{ daysFormatOnMobile(bookingDate.date?.end) }}</span
             >
           </div>
-          <NuxtLink
-            :to="{ name: 'booking', params: { roomId: $route.params.roomId } }"
+          <button
             class="btn btn-primary-100 px-12 py-4 text-neutral-0 fw-bold rounded-3"
+            @click="toReserve"
           >
             立即預訂
-          </NuxtLink>
+          </button>
         </template>
       </div>
     </section>
     <ClientOnly>
-      <DatePickerModal
-        ref="datePickerModal"
-        :date-time="bookingDate"
-        @handle-date-change="handleDateChange"
-      />
+      <DatePickerModal ref="datePickerModal" />
     </ClientOnly>
   </main>
 </template>

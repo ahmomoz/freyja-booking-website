@@ -1,5 +1,9 @@
 <script setup>
-import { useScreens } from 'vue-screen-utils';
+import { useScreens } from "vue-screen-utils";
+
+const dateTimeStore = useDateTimeStore();
+const { bookingDate } = dateTimeStore;
+const { handleDateChange } = dateTimeStore;
 
 // modal
 const { $bootstrapModal } = useNuxtApp();
@@ -22,21 +26,13 @@ defineExpose({
   closeModal,
 });
 
-const emit = defineEmits(["handleDateChange"]);
-const props = defineProps({
-  dateTime: {
-    type: Object,
-    required: true,
-  },
-});
-
 const tempDate = reactive({
   date: {
-    start: props.dateTime.date.start,
-    end: props.dateTime.date.end,
+    start: bookingDate.date.start,
+    end: bookingDate.date.end,
   },
-  minDate: props.dateTime.minDate,
-  maxDate: props.dateTime.maxDate,
+  minDate: bookingDate.minDate,
+  maxDate: bookingDate.maxDate,
   key: 0,
 });
 
@@ -50,10 +46,10 @@ const { mapCurrent } = useScreens({
   md: "768px",
 });
 
-const rows = mapCurrent({ md: 1}, 2);
-const columns = mapCurrent({ md: 2}, 1);
-const expanded = mapCurrent({ md: false}, true);
-const titlePosition = mapCurrent({ md: 'center'}, 'left');
+const rows = mapCurrent({ md: 1 }, 2);
+const columns = mapCurrent({ md: 2 }, 1);
+const expanded = mapCurrent({ md: false }, true);
+const titlePosition = mapCurrent({ md: "center" }, "left");
 
 const formatDateTitle = (date) => date?.replaceAll("-", " / ");
 
@@ -84,13 +80,13 @@ const confirmDate = () => {
   const isMobile = mapCurrent({ md: false }, true);
 
   if (isMobile.value) {
-    emit("handleDateChange", {
+    handleDateChange({
       date: tempDate.date,
       people: bookingPeopleMobile,
       daysCount,
     });
   } else {
-    emit("handleDateChange", {
+    handleDateChange({
       date: tempDate.date,
       daysCount,
     });

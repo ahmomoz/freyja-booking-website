@@ -1,8 +1,0 @@
-<script setup>
-</script>
-
-<template>
-  <h1>預約</h1>
-</template>
-
-<style scoped></style>

@@ -1,5 +1,6 @@
 <script setup>
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
+const { $formatPrice } = useNuxtApp();
 
 const { data: roomsList } = await useFetch(`/rooms`, {
   baseURL: "https://freyja-r41s.onrender.com/api/v1",
@@ -10,13 +11,10 @@ const { data: roomsList } = await useFetch(`/rooms`, {
   onResponseError({ response }) {
     const { message } = response._data;
     console.error("Error", message);
-    router.push("/");
+    navigateTo("/");
   },
 });
 
-const formatPrice = (price) => {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
 </script>
 
 <template>
@@ -167,7 +165,7 @@ const formatPrice = (price) => {
                     class="d-flex justify-content-between align-items-center fs-7 fs-md-5 text-primary-100"
                   >
                     <p class="mb-0 fw-bold">
-                      NT$ {{ formatPrice(room.price) }}
+                      NT$ {{ $formatPrice(room.price) }}
                     </p>
                     <NuxtLink
                       :to="`/room/${room._id}`"

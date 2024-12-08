@@ -63,4 +63,5 @@ export default defineNuxtConfig({
       linkExactActiveClass: "active",
     },
   },
+  modules: ["@pinia/nuxt"],
 });

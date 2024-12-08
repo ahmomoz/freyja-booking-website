@@ -16,6 +16,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
         :autoplay="{ delay: 3000 }"
         :modules="[Navigation, Pagination, Autoplay]"
         :haveBtn="false"
+        :loopAdditionalSlides="5"
       >
         <div class="swiper-slide" v-for="(num, index) in 5" :key="index">
           <picture>
@@ -204,6 +205,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
           :autoplay="{ delay: 3000 }"
           :modules="[Navigation, Pagination, Autoplay]"
           :haveBtn="false"
+          :loopAdditionalSlides="5"
         >
           <div class="swiper-slide" v-for="(num, index) in 5" :key="index">
             <picture>

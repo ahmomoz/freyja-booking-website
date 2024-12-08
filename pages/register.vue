@@ -1,10 +1,9 @@
 <script setup>
-const { $swal } = useNuxtApp();
-const router = useRouter();
-
 definePageMeta({
   layout: "account",
 });
+
+const { $swal } = useNuxtApp();
 
 const isEmailAndPasswordValid = ref(false);
 const checkPassword = ref();
@@ -71,7 +70,7 @@ const processRegistration = async (requsetBody) => {
       },
     });
 
-    router.push("/login");
+    navigateTo("/login");
   } catch (error) {
     const message = error.response._data.message;
     $swal.fire({

@@ -1,10 +1,13 @@
 <script setup>
 const route = useRoute();
-const neutralBgRoute = [];
+const { $swal } = useNuxtApp();
 const getUserCookie = useCookie("auth");
+const username = useCookie("username");
 
+// header 底色邏輯
+const neutralBgRoute = ["room-id-booking", "user-profile", "user-orders"];
 const isNeutralRoute = computed(() => {
-  if (route.name === 'room-id') {
+  if (route.name === "room-id") {
     return true;
   }
   return neutralBgRoute.includes(route.name);
@@ -16,12 +19,26 @@ const handleScroll = () => {
   isScrolled.value = window.scrollY > 50;
 };
 
+// 登出按鈕
+const signOut = () => {
+  $swal.fire({
+    position: "center",
+    icon: "success",
+    title: "已登出",
+    showConfirmButton: false,
+    timer: 1500,
+  });
+  getUserCookie.value = null;
+  const config = useRuntimeConfig();
+  navigateTo(config.public.defaultLogoutRedirect || "/");
+};
+
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
+  window.addEventListener("scroll", handleScroll);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener("scroll", handleScroll);
 });
 </script>
 
@@ -30,7 +47,7 @@ onUnmounted(() => {
     :class="{
       scrolled: isScrolled,
       'bg-transparent': !isNeutralRoute,
-      'bg-neutral-120': isNeutralRoute
+      'bg-neutral-120': isNeutralRoute,
     }"
     class="position-fixed top-0 z-3 w-100"
   >
@@ -73,17 +90,21 @@ onUnmounted(() => {
                   data-bs-toggle="dropdown"
                 >
                   <Icon class="fs-5" icon="mdi:account-circle-outline" />
-                  Jessica
+                  {{ username }}
                 </button>
                 <ul
                   class="dropdown-menu py-3 overflow-hidden"
                   style="right: 0; left: auto; border-radius: 20px"
                 >
                   <li>
-                    <a class="dropdown-item px-6 py-4" href="#">我的帳戶</a>
+                    <NuxtLink to="/user/profile" class="dropdown-item px-6 py-4"
+                      >我的帳戶</NuxtLink
+                    >
                   </li>
                   <li>
-                    <a class="dropdown-item px-6 py-4" href="#">登出</a>
+                    <a class="dropdown-item px-6 py-4" href="#" @click="signOut"
+                      >登出</a
+                    >
                   </li>
                 </ul>
               </div>
@@ -96,7 +117,25 @@ onUnmounted(() => {
               </NuxtLink>
             </li>
             <li class="d-md-none nav-item">
-              <NuxtLink to="/" class="nav-link p-4 text-neutral-0">
+              <div v-if="getUserCookie">
+                <NuxtLink
+                  to="/user/profile"
+                  class="nav-link p-6 text-neutral-0 d-block"
+                >
+                  我的帳戶
+                </NuxtLink>
+                <a
+                  class="nav-link text-neutral-0 p-6 d-block"
+                  href="#"
+                  @click="signOut"
+                  >登出</a
+                >
+              </div>
+              <NuxtLink
+                :to="{ name: 'login' }"
+                class="nav-link p-4 text-neutral-0"
+                v-else
+              >
                 會員登入
               </NuxtLink>
             </li>

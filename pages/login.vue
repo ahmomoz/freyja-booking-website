@@ -13,7 +13,7 @@ const isRememberEmail = ref();
 
 const loginAccount = async (requsetBody) => {
   try {
-    const { token } = await $fetch("/user/login", {
+    const { result, token } = await $fetch("/user/login", {
       baseURL: "https://freyja-r41s.onrender.com/api/v1",
       method: "POST",
       body: {
@@ -24,9 +24,15 @@ const loginAccount = async (requsetBody) => {
     if (isRememberEmail !== "") {
       const auth = useCookie("auth", {
         path: "/",
-        maxAge: 6000,
+        maxAge: 60 * 60 * 48,
       });
       auth.value = token;
+
+      const userNameCookie = useCookie("username", {
+        path: "/",
+        maxAge: 60 * 60 * 48,
+      });
+      userNameCookie.value = result.name;
     }
 
     await $swal.fire({
@@ -37,9 +43,9 @@ const loginAccount = async (requsetBody) => {
       timer: 1500,
     });
 
-    router.push("/");
+    router.back();
   } catch (error) {
-    const { message } = error.response._data;
+    const { message } = error.response?._data;
     $swal.fire({
       position: "center",
       icon: "error",
