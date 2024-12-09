@@ -1,5 +1,47 @@
 <script setup>
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
+const { $swal } = useNuxtApp();
+const { $formatPrice } = useNuxtApp();
+
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
+// API錯誤處理
+const handleFetchError = ({ response }) => {
+  const { message } = response._data || {};
+  $swal.fire({
+    position: "center",
+    icon: "error",
+    title: message,
+    showConfirmButton: false,
+    timer: 1500,
+  });
+  navigateTo("/");
+};
+
+// 取得遠端資料
+const [{ data: roomsList }, { data: newsList }, { data: culinaryList }] =
+  await Promise.all([
+    useFetch(`/rooms/`, {
+      baseURL: apiBaseUrl,
+      transform: (response) => response?.result,
+      onResponseError: handleFetchError,
+    }),
+    useFetch(`/home/news`, {
+      baseURL: apiBaseUrl,
+      method: "GET",
+      transform: (response) => response.result,
+      onResponseError: handleFetchError,
+    }),
+    useFetch(`/home/culinary`, {
+      baseURL: apiBaseUrl,
+      method: "GET",
+      transform: (response) => response.result,
+      onResponseError: handleFetchError,
+    }),
+  ]);
 </script>
 
 <template>
@@ -16,7 +58,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
         :autoplay="{ delay: 3000 }"
         :modules="[Navigation, Pagination, Autoplay]"
         :haveBtn="false"
-        :loopAdditionalSlides="5"
+        :loopAdditionalSlides="3"
       >
         <div class="swiper-slide" v-for="(num, index) in 5" :key="index">
           <picture>
@@ -77,77 +119,28 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
             </div>
           </div>
           <div class="col-12 col-md-10 d-flex flex-column gap-10">
-            <div class="card bg-transparent border-0">
+            <div
+              class="card bg-transparent border-0"
+              v-for="news in newsList"
+              :key="news._id"
+            >
               <div
                 class="d-flex flex-column flex-md-row align-items-center gap-6"
               >
                 <picture>
-                  <source
-                    srcset="@/public/images/home-news-1.png"
-                    media="(min-width: 576px)"
-                  />
+                  <source :srcset="news.image" media="(min-width: 576px)" />
                   <img
-                    src="@/public/images/home-news-sm-1.png"
+                    :src="news.image"
                     class="w-100 rounded-3"
-                    alt="可看見海景及泳池的套房"
+                    :alt="news.title"
                   />
                 </picture>
                 <div class="card-body p-0">
                   <h3 class="card-title mb-2 mb-md-6 fw-bold">
-                    秋季旅遊，豪華享受方案
+                    {{ news.title }}
                   </h3>
                   <p class="card-text text-neutral-80 fs-8 fs-md-7 fw-medium">
-                    秋天就是要來場豪華的旅遊！我們為您準備了一系列的秋季特別方案，包括舒適的住宿、美食饗宴，以及精彩的活動。不論您是想來一趟浪漫之旅，還是想和家人共度美好時光，都能在這裡找到最適合的方案。
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="card bg-transparent border-0">
-              <div
-                class="d-flex flex-column flex-md-row align-items-center gap-6"
-              >
-                <picture>
-                  <source
-                    srcset="@/public/images/home-news-2.png"
-                    media="(min-width: 576px)"
-                  />
-                  <img
-                    src="@/public/images/home-news-sm-2.png"
-                    class="w-100 rounded-3"
-                    alt="在雙人床上的兩顆灰色枕頭"
-                  />
-                </picture>
-                <div class="card-body p-0">
-                  <h3 class="card-title mb-2 mb-md-6 fw-bold">輕鬆住房專案</h3>
-                  <p class="card-text text-neutral-80 fs-8 fs-md-7 fw-medium">
-                    我們知道，有時候您只是需要一個舒適的地方放鬆心情。因此，我們推出了「輕鬆住房專案」，讓您無壓力地享受住宿。不管是短期的休息，還是長期的住宿，我們都會以最貼心的服務，讓您感到賓至如歸。
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="card bg-transparent border-0">
-              <div
-                class="d-flex flex-column flex-md-row align-items-center gap-6"
-              >
-                <picture>
-                  <source
-                    srcset="@/public/images/home-news-3.png"
-                    media="(min-width: 576px)"
-                  />
-                  <img
-                    src="@/public/images/home-news-sm-3.png"
-                    class="w-100 rounded-3"
-                    alt="坐在沙發上的聖誕麋鹿玩偶"
-                  />
-                </picture>
-                <div class="card-body p-0">
-                  <h3 class="card-title mb-2 mb-md-6 fw-bold">
-                    耶誕快樂，住房送禮
-                  </h3>
-                  <p class="card-text text-neutral-80 fs-8 fs-md-7 fw-medium">
-                    聖誕節來臨，我們為您準備了特別的禮物！在聖誕期間訂房，不僅有特別優惠，還會送上我們精心準備的聖誕禮物。讓我們一起慶祝這個溫馨的節日吧！
+                    {{ news.description }}
                   </p>
                 </div>
               </div>
@@ -205,7 +198,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
           :autoplay="{ delay: 3000 }"
           :modules="[Navigation, Pagination, Autoplay]"
           :haveBtn="false"
-          :loopAdditionalSlides="5"
+          :loopAdditionalSlides="3"
         >
           <div class="swiper-slide" v-for="(num, index) in 5" :key="index">
             <picture>
@@ -223,11 +216,13 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
         </Swiper>
 
         <div class="room-intro-content text-neutral-0">
-          <h2 class="mb-2 mb-md-4 fw-bold">尊爵雙人房</h2>
+          <h2 class="mb-2 mb-md-4 fw-bold">{{ roomsList[0].name }}</h2>
           <p class="mb-6 mb-md-10 fs-8 fs-md-7">
-            享受高級的住宿體驗，尊爵雙人房提供給您舒適寬敞的空間和精緻的裝潢。
+            {{ roomsList[0].description }}
           </p>
-          <div class="mb-6 mb-md-10 fs-3 fw-bold">NT$ 10,000</div>
+          <div class="mb-6 mb-md-10 fs-3 fw-bold">
+            NT$ {{ $formatPrice(roomsList[0].price) }}
+          </div>
           <NuxtLink
             to="/room"
             class="btn btn-neutral-0 d-flex justify-content-end align-items-center gap-3 w-100 p-5 p-md-10 mb-6 mb-md-10 text-end text-neutral-100 fs-7 fs-md-5 fw-bold border-0"
@@ -272,18 +267,19 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
           <h2 class="mb-0 fs-1 fw-bold text-primary-100">佳餚<br />美饌</h2>
           <div class="deco-line" />
         </div>
-        <div class="row flex-nowrap overflow-x-auto custom-scroll">
-          <div class="col-10 col-md-6 col-xl-4">
+        <div class="row flex-nowrap overflow-x-auto draggable-container">
+          <div
+            class="col-10 col-md-6 col-xl-4"
+            v-for="culinary in culinaryList"
+            :key="culinary._id"
+          >
             <div class="card position-relative border-0 rounded-3">
               <picture>
-                <source
-                  srcset="@/public/images/home-food-1.png"
-                  media="(min-width: 576px)"
-                />
+                <source :srcset="culinary.image" media="(min-width: 576px)" />
                 <img
                   class="w-100 rounded-3"
-                  src="@/public/images/home-food-sm-1.png"
-                  alt="海霸"
+                  :src="culinary.image"
+                  :alt="culinary.name"
                 />
               </picture>
               <div
@@ -292,152 +288,15 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
                 <div
                   class="d-flex justify-content-between align-items-center mb-4 mb-md-6"
                 >
-                  <h5 class="card-title mb-0 fw-bold">海霸</h5>
+                  <h5 class="card-title mb-0 fw-bold">{{ culinary.title }}</h5>
                   <div
                     class="d-flex justify-content-between gap-4 text-neutral-40 fs-8 fs-md-7"
                   >
-                    <span class="fw-bold">SUN-MON</span>
-                    <span class="fw-bold">11:00 - 20:30</span>
+                    <span class="fw-bold">{{ culinary.diningTime }}</span>
                   </div>
                 </div>
                 <p class="card-text fs-8 fs-md-7">
-                  以新鮮海產料理聞名，我們的專業廚師選用高雄當地的海鮮，每一道菜都充滿海洋的鮮美與清甜。無論是烤魚、蒸蝦還是煮蛤蜊，都能讓您品嚐到最新鮮的海洋風味。
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-10 col-md-6 col-xl-4">
-            <div class="card position-relative border-0 rounded-3">
-              <picture>
-                <source
-                  srcset="@/public/images/home-food-2.png"
-                  media="(min-width: 576px)"
-                />
-                <img
-                  class="w-100 rounded-3"
-                  src="@/public/images/home-food-sm-2.png"
-                  alt="日食"
-                />
-              </picture>
-              <div
-                class="card-body position-absolute bottom-0 p-4 p-md-6 rounded-bottom-3 text-neutral-0"
-              >
-                <div
-                  class="d-flex justify-content-between align-items-center mb-4 mb-md-6"
-                >
-                  <h5 class="card-title mb-0 fw-bold">日食</h5>
-                  <div
-                    class="d-flex justify-content-between gap-4 text-neutral-40 fs-8 fs-md-7"
-                  >
-                    <span class="fw-bold">SUN-MON</span>
-                    <span class="fw-bold">17:00 - 22:00</span>
-                  </div>
-                </div>
-                <p class="card-text fs-8 fs-md-7">
-                  為您提供優質的牛排，每一塊肉都來自頂級的牛肉，經過專業廚師的巧手烹調，口感豐滿、風味絕佳。搭配我們的特製醬料，讓您的味蕾享受一場美味的盛宴。
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-10 col-md-6 col-xl-4">
-            <div class="card position-relative border-0 rounded-3">
-              <picture>
-                <source
-                  srcset="@/public/images/home-food-3.png"
-                  media="(min-width: 576px)"
-                />
-                <img
-                  class="w-100 rounded-3"
-                  src="@/public/images/home-food-sm-3.png"
-                  alt="山臻"
-                />
-              </picture>
-              <div
-                class="card-body position-absolute bottom-0 p-4 p-md-6 rounded-bottom-3 text-neutral-0"
-              >
-                <div
-                  class="d-flex justify-content-between align-items-center mb-4 mb-md-6"
-                >
-                  <h5 class="card-title mb-0 fw-bold">山臻</h5>
-                  <div
-                    class="d-flex justify-content-between gap-4 text-neutral-40 fs-8 fs-md-7"
-                  >
-                    <span class="fw-bold">SUN-MON</span>
-                    <span class="fw-bold">11:30 - 20:30</span>
-                  </div>
-                </div>
-                <p class="card-text fs-8 fs-md-7">
-                  帶您進入一次辣味與鮮香兼具的川菜美食之旅。我們的廚師掌握正宗的川菜烹調技巧，從麻辣鍋到口水雞，每一道菜都有其獨特的風味，讓您回味無窮。
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-10 col-md-6 col-xl-4">
-            <div class="card position-relative border-0 rounded-3">
-              <picture>
-                <source
-                  srcset="@/public/images/home-food-4.png"
-                  media="(min-width: 576px)"
-                />
-                <img
-                  class="w-100 rounded-3"
-                  src="@/public/images/home-food-sm-4.png"
-                  alt="月永"
-                />
-              </picture>
-              <div
-                class="card-body position-absolute bottom-0 p-4 p-md-6 rounded-bottom-3 text-neutral-0"
-              >
-                <div
-                  class="d-flex justify-content-between align-items-center mb-4 mb-md-6"
-                >
-                  <h5 class="card-title mb-0 fw-bold">月永</h5>
-                  <div
-                    class="d-flex justify-content-between gap-4 text-neutral-40 fs-8 fs-md-7"
-                  >
-                    <span class="fw-bold">SUN-MON</span>
-                    <span class="fw-bold">11:00 - 20:00</span>
-                  </div>
-                </div>
-                <p class="card-text fs-8 fs-md-7">
-                  從鮮美的海鮮、經典的牛排，到各國的特色美食，我們都一應俱全。在這裡，您可以品嚐到世界各地的美食，每一道菜都由專業廚師用心製作，讓您在享受美食的同時，也能感受到我們的熱情與用心。
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-10 col-md-6 col-xl-4">
-            <div class="card position-relative border-0 rounded-3">
-              <picture>
-                <source
-                  srcset="@/public/images/home-food-5.png"
-                  media="(min-width: 576px)"
-                />
-                <img
-                  class="w-100 rounded-3"
-                  src="@/public/images/home-food-sm-5.png"
-                  alt="天潮"
-                />
-              </picture>
-              <div
-                class="card-body position-absolute bottom-0 p-4 p-md-6 rounded-bottom-3 text-neutral-0"
-              >
-                <div
-                  class="d-flex justify-content-between align-items-center mb-4 mb-md-6"
-                >
-                  <h5 class="card-title mb-0 fw-bold">天潮</h5>
-                  <div
-                    class="d-flex justify-content-between gap-4 text-neutral-40 fs-8 fs-md-7"
-                  >
-                    <span class="fw-bold">SUN-MON</span>
-                    <span class="fw-bold">14:00 - 19:30</span>
-                  </div>
-                </div>
-                <p class="card-text fs-8 fs-md-7">
-                  我們提供各種精緻甜點與糕點，無論您喜歡的是巧克力蛋糕、法式馬卡龍，還是台灣傳統的糕點，都能在這裡找到。讓我們的甜點帶您進入一場繽紛的甜蜜旅程。
+                  {{ culinary.description }}
                 </p>
               </div>
             </div>
@@ -926,22 +785,11 @@ section .btn {
   background-color: #bf9d7d;
 }
 
-.custom-scroll {
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: #dadada #fff6f2; /* 滑块颜色和背景颜色 */
-}
+.draggable-container {
+  -webkit-overflow-scrolling: touch;
 
-.custom-scroll::-webkit-scrollbar {
-  height: 6px; /* 滚动条高度 */
-}
-
-.custom-scroll::-webkit-scrollbar-thumb {
-  background-color: #c6c6c6; /* 滚动条滑块颜色 */
-  border-radius: 12px; /* 滑块圆角 */
-}
-
-.custom-scroll::-webkit-scrollbar-track {
-  background: #f0f0f0; /* 滚动条背景 */
-  border-radius: 12px; /* 背景圆角 */
+  &::-webkit-scrollbar {
+    height: 0;
+  }
 }
 </style>

@@ -8,6 +8,11 @@ const route = useRoute();
 const { $swal } = useNuxtApp();
 const { $formatPrice } = useNuxtApp();
 
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
 // 計算天數
 const countDateDiffs = (start, end) => {
   var startDate = new Date(start);
@@ -32,7 +37,7 @@ const handleFetchError = ({ response }) => {
 
 const [{ data: bookingResultList }, { data: userData }] = await Promise.all([
   useFetch(`/orders/${id}`, {
-    baseURL: "https://freyja-r41s.onrender.com/api/v1",
+    baseURL: apiBaseUrl,
     headers: {
       Authorization: token.value,
     },
@@ -40,7 +45,7 @@ const [{ data: bookingResultList }, { data: userData }] = await Promise.all([
     onResponseError: handleFetchError,
   }),
   useFetch(`/user`, {
-    baseURL: "https://freyja-r41s.onrender.com/api/v1",
+    baseURL: apiBaseUrl,
     method: "GET",
     headers: {
       Authorization: token.value,

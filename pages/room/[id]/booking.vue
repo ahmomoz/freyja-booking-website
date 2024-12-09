@@ -9,6 +9,11 @@ const route = useRoute();
 const { $swal } = useNuxtApp();
 const { $formatPrice } = useNuxtApp();
 
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
 // store
 const bookingStore = useBookingStore();
 const { bookingResult } = storeToRefs(bookingStore);
@@ -30,12 +35,12 @@ const handleFetchError = ({ response }) => {
 
 const [{ data: roomList }, { data: userData }] = await Promise.all([
   useFetch(`/rooms/${id}`, {
-    baseURL: "https://freyja-r41s.onrender.com/api/v1",
+    baseURL: apiBaseUrl,
     transform: (response) => response?.result,
     onResponseError: handleFetchError,
   }),
   useFetch(`/user`, {
-    baseURL: "https://freyja-r41s.onrender.com/api/v1",
+    baseURL: apiBaseUrl,
     method: "GET",
     headers: {
       Authorization: token.value,
@@ -97,6 +102,7 @@ const changePeopleNum = () => {
 // Loading 邏輯
 const nuxtApp = useNuxtApp();
 const isLoading = ref(false);
+const sendBookingRequest = ref(false);
 nuxtApp.hook("page:start", () => {
   isLoading.value = true;
 });
@@ -108,9 +114,10 @@ nuxtApp.hook("page:finish", () => {
 const confirmBooking = async () => {
   try {
     isLoading.value = true;
+    sendBookingRequest.value = true;
 
     const response = await $fetch("/orders", {
-      baseURL: "https://freyja-r41s.onrender.com/api/v1",
+      baseURL: apiBaseUrl,
       method: "POST",
       headers: {
         Authorization: token.value,
@@ -551,7 +558,7 @@ if (!bookingResult.value.roomId) {
       </div>
     </section>
 
-    <BookingLoading v-if="isLoading" />
+    <BookingLoading v-if="isLoading && sendBookingRequest" />
   </main>
 </template>
 

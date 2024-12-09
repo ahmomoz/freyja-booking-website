@@ -14,6 +14,19 @@ const password = ref({
   newPassword: "",
 });
 
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
+// loading
+const { $useLoading } = useNuxtApp();
+const loadingHandler = $useLoading({
+  backgroundColor: "gray",
+  loader: "dots",
+  "is-full-page": false,
+});
+
 // 生日邏輯處理 (年月日合併成 birthday )
 const birthDate = reactive({
   year: "",
@@ -49,7 +62,7 @@ const handleFetchError = ({ response }) => {
   navigateTo("/");
 };
 const { data: userData } = await useFetch(`/user`, {
-  baseURL: "https://freyja-r41s.onrender.com/api/v1",
+  baseURL: apiBaseUrl,
   method: "GET",
   headers: {
     Authorization: token.value,
@@ -74,9 +87,10 @@ const updatePassword = () => {
 };
 const putPassword = async () => {
   const { _id, name, phone, birthday, address } = userData.value;
+  const loader = loadingHandler.show();
   try {
-    const response = await $fetch("/user", {
-      baseURL: "https://freyja-r41s.onrender.com/api/v1",
+    await $fetch("/user", {
+      baseURL: apiBaseUrl,
       method: "PUT",
       headers: {
         Authorization: token.value,
@@ -99,6 +113,7 @@ const putPassword = async () => {
       timer: 1500,
     });
 
+    loader.hide();
     window.location.reload();
   } catch (error) {
     const message = error.response._data.message;
@@ -109,15 +124,17 @@ const putPassword = async () => {
       showConfirmButton: false,
       timer: 1500,
     });
+    loader.hide();
   }
 };
 
 // 更改基本資料
 const updateUserInfo = async () => {
   const { _id, name, phone, birthday, address } = userData.value;
+  const loader = loadingHandler.show();
   try {
     const response = await $fetch("/user", {
-      baseURL: "https://freyja-r41s.onrender.com/api/v1",
+      baseURL: apiBaseUrl,
       method: "PUT",
       headers: {
         Authorization: token.value,
@@ -141,6 +158,7 @@ const updateUserInfo = async () => {
       timer: 1500,
     });
 
+    loader.hide();
     window.location.reload();
   } catch (error) {
     const message = error.response._data.message;
@@ -151,6 +169,7 @@ const updateUserInfo = async () => {
       showConfirmButton: false,
       timer: 1500,
     });
+    loader.hide();
   }
 };
 </script>
@@ -329,11 +348,7 @@ const updateUserInfo = async () => {
                 class="form-select p-4 text-neutral-80 fw-medium rounded-3"
                 v-model="birthDate.year"
               >
-                <option
-                  v-for="year in 65"
-                  :key="year"
-                  :value="year + 1958"
-                >
+                <option v-for="year in 65" :key="year" :value="year + 1958">
                   {{ year + 1958 }} 年
                 </option>
               </select>
@@ -389,8 +404,6 @@ const updateUserInfo = async () => {
               />
             </div>
           </div>
-
-
         </div>
         <button
           :class="{ 'd-none': isEditProfile }"

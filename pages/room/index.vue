@@ -2,8 +2,14 @@
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 const { $formatPrice } = useNuxtApp();
 
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
+// 取得遠端資料
 const { data: roomsList } = await useFetch(`/rooms`, {
-  baseURL: "https://freyja-r41s.onrender.com/api/v1",
+  baseURL: apiBaseUrl,
   transform: (response) => {
     const { result } = response || {};
     return result;
@@ -14,11 +20,10 @@ const { data: roomsList } = await useFetch(`/rooms`, {
     navigateTo("/");
   },
 });
-
 </script>
 
 <template>
-  <main>
+  <main class="position-relative">
     <section class="hero position-relative">
       <Swiper
         :loop="true"

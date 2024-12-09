@@ -5,16 +5,32 @@ definePageMeta({
 
 const router = useRouter();
 const { $swal } = useNuxtApp();
+
 const userLoginObject = ref({
   email: "",
   password: "",
 });
 const isRememberEmail = ref();
 
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
+// loading
+const { $useLoading } = useNuxtApp();
+const loadingHandler = $useLoading({
+  backgroundColor: "gray",
+  loader: "dots",
+  "is-full-page": false,
+});
+
+// 送出登入請求
 const loginAccount = async (requsetBody) => {
+  const loader = loadingHandler.show();
   try {
     const { result, token } = await $fetch("/user/login", {
-      baseURL: "https://freyja-r41s.onrender.com/api/v1",
+      baseURL: apiBaseUrl,
       method: "POST",
       body: {
         ...requsetBody,
@@ -35,7 +51,7 @@ const loginAccount = async (requsetBody) => {
       userNameCookie.value = result.name;
     }
 
-    await $swal.fire({
+    $swal.fire({
       position: "center",
       icon: "success",
       title: "登入成功",
@@ -43,6 +59,7 @@ const loginAccount = async (requsetBody) => {
       timer: 1500,
     });
 
+    loader.hide();
     router.back();
   } catch (error) {
     const { message } = error.response?._data;
@@ -53,6 +70,7 @@ const loginAccount = async (requsetBody) => {
       showConfirmButton: false,
       timer: 1500,
     });
+    loader.hide();
   }
 };
 </script>
@@ -123,7 +141,7 @@ const loginAccount = async (requsetBody) => {
     <p class="mb-0 fs-8 fs-md-7">
       <span class="me-2 text-neutral-0 fw-medium">沒有會員嗎？</span>
       <NuxtLink
-        to="signup"
+        to="/register"
         class="text-primary-100 fw-bold text-decoration-underline bg-transparent border-0"
       >
         <span>前往註冊</span>

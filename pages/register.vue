@@ -5,9 +5,6 @@ definePageMeta({
 
 const { $swal } = useNuxtApp();
 
-const isEmailAndPasswordValid = ref(false);
-const checkPassword = ref();
-const errorMessage = ref();
 const userRegisterObject = ref({
   name: "",
   email: "",
@@ -20,12 +17,23 @@ const userRegisterObject = ref({
   },
 });
 
-const birthDate = reactive({
-  year: "",
-  month: "",
-  day: "",
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
+// loading
+const { $useLoading } = useNuxtApp();
+const loadingHandler = $useLoading({
+  backgroundColor: "gray",
+  loader: "dots",
+  "is-full-page": false,
 });
 
+// 註冊資料送出前驗證
+const isEmailAndPasswordValid = ref(false);
+const checkPassword = ref();
+const errorMessage = ref();
 const isEmailAndPasswordValidFn = () => {
   if (
     userRegisterObject.value.email.trim() === "" ||
@@ -45,6 +53,12 @@ const isEmailAndPasswordValidFn = () => {
   return true;
 };
 
+// 生日邏輯處理 (年月日合併成 birthday )
+const birthDate = reactive({
+  year: "",
+  month: "",
+  day: "",
+});
 watch(
   () => ({ ...birthDate }),
   ({ year, month, day }) => {
@@ -60,16 +74,19 @@ watch(
   { deep: true }
 );
 
+// 送出註冊資料請求
 const processRegistration = async (requsetBody) => {
+  const loader = loadingHandler.show();
   try {
     await $fetch("/user/signup", {
-      baseURL: "https://freyja-r41s.onrender.com/api/v1",
+      baseURL: apiBaseUrl,
       method: "POST",
       body: {
         ...requsetBody,
       },
     });
 
+    loader.hide();
     navigateTo("/login");
   } catch (error) {
     const message = error.response._data.message;
@@ -80,6 +97,7 @@ const processRegistration = async (requsetBody) => {
       showConfirmButton: false,
       timer: 1500,
     });
+    loader.hide();
   }
 };
 </script>

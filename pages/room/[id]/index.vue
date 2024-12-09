@@ -5,6 +5,12 @@ const route = useRoute();
 const { $swal } = useNuxtApp();
 const { $formatPrice } = useNuxtApp();
 
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
+
 // 引入 dateTimeStore 相關資料
 const dateTimeStore = useDateTimeStore();
 const { bookingPeople } = storeToRefs(dateTimeStore);
@@ -16,7 +22,7 @@ const { createBooking } = bookingStore;
 const { id } = route.params;
 
 const { data: roomList } = await useFetch(`/rooms/${id}`, {
-  baseURL: "https://freyja-r41s.onrender.com/api/v1",
+  baseURL: apiBaseUrl,
   transform: (response) => {
     const { result } = response || {};
     return result;

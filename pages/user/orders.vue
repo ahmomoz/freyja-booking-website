@@ -4,9 +4,22 @@ definePageMeta({
   middleware: ["auth"],
 });
 
-const route = useRoute();
-
+const { $swal } = useNuxtApp();
 const { $formatPrice } = useNuxtApp();
+
+// 取得環境變數API
+const {
+  public: { apiBaseUrl },
+} = useRuntimeConfig();
+
+// loading
+const { $useLoading } = useNuxtApp();
+
+const loadingHandler = $useLoading({
+  backgroundColor: "gray",
+  loader: "dots",
+  "is-full-page": false,
+});
 
 // 計算天數
 const countDateDiffs = (start, end) => {
@@ -15,7 +28,6 @@ const countDateDiffs = (start, end) => {
   return parseInt(Math.abs(startDate - endDate) / 1000 / 60 / 60 / 24);
 };
 
-// 取得遠端資料
 const token = useCookie("auth");
 const handleFetchError = ({ response }) => {
   const { message } = response._data || {};
@@ -28,20 +40,62 @@ const handleFetchError = ({ response }) => {
   });
   navigateTo("/");
 };
+
+// 取得訂單資料
 const [{ data: bookingList }] = await Promise.all([
   useFetch(`/orders`, {
-    baseURL: "https://freyja-r41s.onrender.com/api/v1",
+    baseURL: apiBaseUrl,
     headers: {
       Authorization: token.value,
     },
-    transform: (response) => response?.result,
+    transform: (response) =>
+      response?.result.filter((item) => {
+        return item.status === 0;
+      }),
     onResponseError: handleFetchError,
   }),
 ]);
 
-onMounted(() => {
-  console.log(bookingList.value);
-});
+// 訂單顯示筆數
+const visibleCount = ref(3);
+const showMoreList = () => {
+  visibleCount.value += 3;
+};
+
+// 取消訂單預定
+const cancelBooking = async (id) => {
+  const loader = loadingHandler.show();
+  try {
+    await $fetch(`/orders/${id}`, {
+      baseURL: "apiBaseUrl",
+      method: "DELETE",
+      headers: {
+        Authorization: token.value,
+      },
+    });
+
+    $swal.fire({
+      position: "center",
+      icon: "success",
+      title: "取消預定成功",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+
+    loader.hide();
+    window.location.reload();
+  } catch (error) {
+    const message = error.response._data.message;
+    $swal.fire({
+      position: "center",
+      icon: "error",
+      title: message,
+      showConfirmButton: false,
+      timer: 1500,
+    });
+    loader.hide();
+  }
+};
 </script>
 <template>
   <div class="row gap-6 gap-md-0">
@@ -52,7 +106,7 @@ onMounted(() => {
       >
         <div>
           <p class="mb-2 text-neutral-80 fs-8 fs-md-7 fw-medium">
-            預訂參考編號： {{ bookingList[0]._id }}
+            預訂參考編號： {{ bookingList[bookingList.length - 1]._id }}
           </p>
           <h2 class="mb-0 text-neutral-100 fs-7 fs-md-5 fw-bold">
             即將來的行程
@@ -61,8 +115,8 @@ onMounted(() => {
 
         <img
           class="img-fluid rounded-3"
-          :src="bookingList[0].roomId.imageUrl"
-          :alt="bookingList[0].roomId.name"
+          :src="bookingList[bookingList.length - 1].roomId.imageUrl"
+          :alt="bookingList[bookingList.length - 1].roomId.name"
         />
 
         <section class="d-flex flex-column gap-6">
@@ -70,10 +124,10 @@ onMounted(() => {
             class="d-flex align-items-center mb-0 text-neutral-80 fs-8 fs-md-6 fw-bold"
           >
             <p class="mb-0">
-              {{ bookingList[0].roomId.name }}，{{
+              {{ bookingList[bookingList.length - 1].roomId.name }}，{{
                 countDateDiffs(
-                  bookingList[0].checkInDate,
-                  bookingList[0].checkOutDate
+                  bookingList[bookingList.length - 1].checkInDate,
+                  bookingList[bookingList.length - 1].checkOutDate
                 )
               }}
               晚
@@ -82,16 +136,22 @@ onMounted(() => {
               class="d-inline-block mx-4 bg-neutral-80"
               style="width: 1px; height: 18px"
             />
-            <p class="mb-0">住宿人數：{{ bookingList[0].peopleNum }} 位</p>
+            <p class="mb-0">
+              住宿人數：{{ bookingList[bookingList.length - 1].peopleNum }} 位
+            </p>
           </h3>
 
           <div class="text-neutral-80 fs-8 fs-md-7 fw-bold">
             <p class="title-deco mb-2">
-              入住：<span v-timeFormat="bookingList[0].checkInDate"></span
+              入住：<span
+                v-timeFormat="bookingList[bookingList.length - 1].checkInDate"
+              ></span
               >，15:00 可入住
             </p>
             <p class="title-deco mb-0">
-              退房：<span v-timeFormat="bookingList[0].checkOutDate"></span
+              退房：<span
+                v-timeFormat="bookingList[bookingList.length - 1].checkOutDate"
+              ></span
               >，12:00 前退房
             </p>
           </div>
@@ -100,10 +160,10 @@ onMounted(() => {
             NT$
             {{
               $formatPrice(
-                bookingList[0].roomId.price *
+                bookingList[bookingList.length - 1].roomId.price *
                   countDateDiffs(
-                    bookingList[0].checkInDate,
-                    bookingList[0].checkOutDate
+                    bookingList[bookingList.length - 1].checkInDate,
+                    bookingList[bookingList.length - 1].checkOutDate
                   )
               )
             }}
@@ -121,7 +181,8 @@ onMounted(() => {
           >
             <li
               class="flex-item d-flex gap-2"
-              v-for="facility in bookingList[0].roomId.facilityInfo"
+              v-for="facility in bookingList[bookingList.length - 1].roomId
+                .facilityInfo"
               :key="facility.title"
             >
               <Icon
@@ -151,7 +212,8 @@ onMounted(() => {
           >
             <li
               class="flex-item d-flex gap-2"
-              v-for="amenity in bookingList[0].roomId.amenityInfo"
+              v-for="amenity in bookingList[bookingList.length - 1].roomId
+                .amenityInfo"
               :key="amenity.title"
             >
               <Icon
@@ -183,7 +245,7 @@ onMounted(() => {
             取消預訂
           </button>
           <NuxtLink
-            to="/room"
+            :to="`/room/${bookingList[bookingList.length - 1].roomId._id}`"
             class="btn btn-primary-100 text-neutral-0 w-50 py-4 fw-bold"
             type="button"
           >
@@ -198,7 +260,10 @@ onMounted(() => {
       >
         <h2 class="mb-0 text-neutral-100 fs-7 fs-md-5 fw-bold">歷史訂單</h2>
 
-        <template v-for="booking in bookingList" :key="booking._id">
+        <template
+          v-for="(booking, index) in bookingList.slice(0, visibleCount)"
+          :key="booking._id"
+        >
           <div class="d-flex flex-column flex-lg-row gap-6">
             <img
               class="img-fluid object-fit-cover rounded-3"
@@ -216,8 +281,14 @@ onMounted(() => {
                 {{ booking.roomId.name }}
               </h3>
               <div class="text-neutral-80 fw-medium">
-                <p class="mb-2">住宿天數： 1 晚</p>
-                <p class="mb-0">住宿人數：2 位</p>
+                <p class="mb-2">
+                  住宿天數：
+                  {{
+                    countDateDiffs(booking.checkInDate, booking.checkOutDate)
+                  }}
+                  晚
+                </p>
+                <p class="mb-0">住宿人數： {{ booking.peopleNum }} 位</p>
               </div>
               <div class="text-neutral-80 fs-8 fs-md-7 fw-medium">
                 <p class="title-deco mb-2">入住：</p>
@@ -240,13 +311,18 @@ onMounted(() => {
               </p>
             </section>
           </div>
-          <hr class="my-0 opacity-100 text-neutral-40" />
+          <hr
+            class="my-0 opacity-100 text-neutral-40"
+            v-if="visibleCount < bookingList.length"
+          />
         </template>
 
         <button
           class="btn btn-outline-primary-100 py-4 fw-bold"
           style="--bs-btn-hover-color: #fff"
           type="button"
+          @click="showMoreList"
+          v-if="visibleCount < bookingList.length"
         >
           查看更多
         </button>
@@ -284,6 +360,7 @@ onMounted(() => {
           <button
             type="button"
             class="btn btn-primary-100 flex-grow-1 m-0 py-4 text-white fw-bold"
+            @click="cancelBooking(bookingList[bookingList.length - 1]._id)"
           >
             確定取消
           </button>

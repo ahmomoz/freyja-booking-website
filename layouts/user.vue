@@ -1,5 +1,6 @@
 <script setup>
 import DefaultLayout from "./default.vue";
+const username = useCookie("username");
 </script>
 
 <template>
@@ -27,7 +28,7 @@ import DefaultLayout from "./default.vue";
               src="@/public/images/avatar-6.png"
               alt="avatar"
             />
-            <h1 class="text-neutral-0 fw-bold">Hello，Jessica</h1>
+            <h1 class="text-neutral-0 fw-bold">Hello，{{ username }}</h1>
           </div>
         </div>
       </section>

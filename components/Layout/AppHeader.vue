@@ -1,6 +1,7 @@
 <script setup>
 const route = useRoute();
 const { $swal } = useNuxtApp();
+
 const getUserCookie = useCookie("auth");
 const username = useCookie("username");
 
@@ -12,9 +13,7 @@ const isNeutralRoute = computed(() => {
   }
   return neutralBgRoute.includes(route.name);
 });
-
 const isScrolled = ref(false);
-
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 50;
 };

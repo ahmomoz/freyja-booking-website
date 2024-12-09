@@ -2,6 +2,11 @@ export default defineNuxtRouteMiddleware(async () => {
   const nuxtApp = useNuxtApp();
   const { $swal } = useNuxtApp();
 
+  // 取得環境變數API
+  const {
+    public: { apiBaseUrl },
+  } = useRuntimeConfig();
+
   const errorAlert = () => {
     $swal.fire({
       position: "top-end",
@@ -10,7 +15,7 @@ export default defineNuxtRouteMiddleware(async () => {
       timer: 1500,
     });
   };
-  
+
   if (
     import.meta.client &&
     nuxtApp.isHydrating &&
@@ -27,7 +32,7 @@ export default defineNuxtRouteMiddleware(async () => {
 
   try {
     await $fetch("/user/check", {
-      baseURL: "https://freyja-r41s.onrender.com/api/v1",
+      baseURL: apiBaseUrl,
       method: "GET",
       headers: {
         Authorization: token.value,
