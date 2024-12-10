@@ -161,6 +161,16 @@ const goBack = () => {
 if (!bookingResult.value.roomId) {
   navigateTo("/room");
 }
+
+// seo
+useSeoMeta({
+  title: () => `Freyja | ${roomList.value.name} ｜確認訂房資訊`,
+  ogTitle: () => `Freyja | ${roomList.value.name} ｜確認訂房資訊`,
+  ogImage: () => `${roomList.value.imageUrl}`,
+  twitterCard: "summary_large_image",
+  twitterTitle: () => `Freyja | ${roomList.value.name} ｜確認訂房資訊`,
+  twitterImage: () => `${roomList.value.imageUrl}`,
+});
 </script>
 
 <template>
@@ -266,70 +276,96 @@ if (!bookingResult.value.roomId) {
                   套用會員資料
                 </button>
               </div>
+              <VForm v-slot="{ errors, meta, resetForm }">
+                <div class="d-flex flex-column gap-6">
+                  <div class="text-neutral-100">
+                    <label
+                      for="username"
+                      class="form-label fs-8 fs-md-7 fw-bold"
+                      >姓名</label
+                    >
+                    <VField
+                      id="username"
+                      name="姓名"
+                      type="text"
+                      class="form-control p-4 fs-8 fs-md-7 rounded-3"
+                      :class="{ 'is-invalid': errors['姓名'] }"
+                      placeholder="請輸入姓名"
+                      rules="required|username"
+                      v-model="bookingData.userInfo.name"
+                    />
+                    <VErrorMessage name="姓名" class="invalid-feedback" />
+                  </div>
 
-              <div class="d-flex flex-column gap-6">
-                <div class="text-neutral-100">
-                  <label for="name" class="form-label fs-8 fs-md-7 fw-bold"
-                    >姓名</label
-                  >
-                  <input
-                    id="name"
-                    type="text"
-                    class="form-control p-4 fs-8 fs-md-7 rounded-3"
-                    placeholder="請輸入姓名"
-                    v-model="bookingData.userInfo.name"
-                  />
-                </div>
+                  <div class="text-neutral-100">
+                    <label for="phone" class="form-label fs-8 fs-md-7 fw-bold"
+                      >手機號碼</label
+                    >
+                    <VField
+                      id="phone"
+                      name="手機號碼"
+                      type="tel"
+                      class="form-control p-4 fs-8 fs-md-7 rounded-3"
+                      :class="{ 'is-invalid': errors['手機號碼'] }"
+                      placeholder="請輸入手機號碼"
+                      rules="required|isPhone"
+                      v-model="bookingData.userInfo.phone"
+                    />
+                    <VErrorMessage name="手機號碼" class="invalid-feedback" />
+                  </div>
 
-                <div class="text-neutral-100">
-                  <label for="phone" class="form-label fs-8 fs-md-7 fw-bold"
-                    >手機號碼</label
-                  >
-                  <input
-                    id="phone"
-                    type="tel"
-                    class="form-control p-4 fs-8 fs-md-7 rounded-3"
-                    placeholder="請輸入手機號碼"
-                    v-model="bookingData.userInfo.phone"
-                  />
-                </div>
+                  <div class="text-neutral-100">
+                    <label for="email" class="form-label fs-8 fs-md-7 fw-bold"
+                      >電子信箱</label
+                    >
+                    <VField
+                      id="email"
+                      name="電子信箱"
+                      type="email"
+                      class="form-control p-4 fs-8 fs-md-7 rounded-3"
+                      :class="{ 'is-invalid': errors['電子信箱'] }"
+                      placeholder="請輸入電子信箱"
+                      rules="required|email"
+                      v-model="bookingData.userInfo.email"
+                    />
+                    <VErrorMessage name="電子信箱" class="invalid-feedback" />
+                  </div>
 
-                <div class="text-neutral-100">
-                  <label for="email" class="form-label fs-8 fs-md-7 fw-bold"
-                    >電子信箱</label
-                  >
-                  <input
-                    id="email"
-                    type="email"
-                    class="form-control p-4 fs-8 fs-md-7 rounded-3"
-                    placeholder="請輸入電子信箱"
-                    v-model="bookingData.userInfo.email"
-                  />
-                </div>
-
-                <div class="text-neutral-100">
-                  <label for="address" class="form-label fs-8 fs-md-7 fw-bold"
-                    >地址</label
-                  >
-
-                  <div className="d-flex gap-2 mb-4">
-                    <input
+                  <div class="text-neutral-100">
+                    <label for="zipcode" class="form-label fs-8 fs-md-7 fw-bold"
+                      >郵遞區號</label
+                    >
+                    <VField
                       id="zipcode"
+                      name="郵遞區號"
                       type="text"
                       class="form-control p-4 rounded-3"
+                      :class="{ 'is-invalid': errors['郵遞區號'] }"
                       placeholder="請輸入郵遞區號"
+                      rules="required"
                       v-model="bookingData.userInfo.address.zipcode"
                     />
+                    <VErrorMessage name="郵遞區號" class="invalid-feedback" />
                   </div>
-                  <input
-                    id="address"
-                    type="text"
-                    class="form-control p-4 fs-8 fs-md-7 rounded-3"
-                    placeholder="請輸入詳細地址"
-                    v-model="bookingData.userInfo.address.detail"
-                  />
+
+                  <div class="text-neutral-100">
+                    <label for="address" class="form-label fs-8 fs-md-7 fw-bold"
+                      >地址</label
+                    >
+                    <VField
+                      id="address"
+                      name="地址"
+                      type="text"
+                      class="form-control p-4 fs-8 fs-md-7 rounded-3"
+                      placeholder="請輸入詳細地址"
+                      :class="{ 'is-invalid': errors['地址'] }"
+                      rules="required"
+                      v-model="bookingData.userInfo.address.detail"
+                    />
+                    <VErrorMessage name="地址" class="invalid-feedback" />
+                  </div>
                 </div>
-              </div>
+              </VForm>
             </section>
 
             <hr class="my-10 my-md-12 opacity-100 text-neutral-60" />

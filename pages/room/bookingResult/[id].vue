@@ -54,6 +54,16 @@ const [{ data: bookingResultList }, { data: userData }] = await Promise.all([
     onResponseError: handleFetchError,
   }),
 ]);
+
+// seo
+useSeoMeta({
+  title: () => `Freyja | 房間預訂結果`,
+  ogTitle: () => `Freyja | 房間預訂結果`,
+  ogImage: () => `${bookingResultList.value.imageUrl}`,
+  twitterCard: "summary_large_image",
+  twitterTitle: () => `Freyja | 房間預訂結果`,
+  twitterImage: () => `${bookingResultList.value.imageUrl}`,
+});
 </script>
 
 <template>

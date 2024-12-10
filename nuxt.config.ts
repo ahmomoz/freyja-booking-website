@@ -63,10 +63,17 @@ export default defineNuxtConfig({
       linkExactActiveClass: "active",
     },
   },
-  modules: ["@pinia/nuxt"],
+  modules: ["@pinia/nuxt", "@vee-validate/nuxt"],
   runtimeConfig: {
     public: {
       apiBaseUrl: process.env.NUXT_API_BASE_URL || "http://localhost:3000/api",
+    },
+  },
+  veeValidate: {
+    componentNames: {
+      Form: "VForm",
+      Field: "VField",
+      ErrorMessage: "VErrorMessage",
     },
   },
 });

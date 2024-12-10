@@ -96,6 +96,14 @@ const cancelBooking = async (id) => {
     loader.hide();
   }
 };
+
+// seo
+useSeoMeta({
+  title: () => `Freyja | 我的訂單`,
+  ogTitle: () => `Freyja | 我的訂單`,
+  twitterCard: "summary_large_image",
+  twitterTitle: () => `Freyja | 我的訂單`,
+});
 </script>
 <template>
   <div class="row gap-6 gap-md-0">

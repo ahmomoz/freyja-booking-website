@@ -10,7 +10,6 @@ const {
   public: { apiBaseUrl },
 } = useRuntimeConfig();
 
-
 // 引入 dateTimeStore 相關資料
 const dateTimeStore = useDateTimeStore();
 const { bookingPeople } = storeToRefs(dateTimeStore);
@@ -79,13 +78,13 @@ const toReserve = () => {
   router.push(`/room/${roomList.value._id}/booking`);
 };
 
+// seo
 useSeoMeta({
   title: () => `Freyja | ${roomList.value.name}`,
   description: () => `${roomList.value.description}`,
   ogTitle: () => `Freyja | ${roomList.value.name}`,
   ogDescription: () => `${roomList.value.description}`,
   ogImage: () => `${roomList.value.imageUrl}`,
-  ogUrl: () => `https://freyja.travel.com.tw/room/${roomList.value.id}`,
   twitterCard: "summary_large_image",
   twitterTitle: () => `Freyja | ${roomList.value.name}`,
   twitterDescription: () => `${roomList.value.description}`,

@@ -60,7 +60,7 @@ const loginAccount = async (requsetBody) => {
     });
 
     loader.hide();
-    router.back();
+    navigateTo("/");
   } catch (error) {
     const { message } = error.response?._data;
     $swal.fire({
@@ -73,6 +73,14 @@ const loginAccount = async (requsetBody) => {
     loader.hide();
   }
 };
+
+// seo
+useSeoMeta({
+  title: () => `Freyja | 登入`,
+  ogTitle: () => `Freyja | 登入`,
+  twitterCard: "summary_large_image",
+  twitterTitle: () => `Freyja | 登入`,
+});
 </script>
 
 <template>
@@ -122,12 +130,12 @@ const loginAccount = async (requsetBody) => {
             記住帳號
           </label>
         </div>
-        <button
+        <NuxtLink
           class="text-primary-100 fw-bold text-decoration-underline bg-transparent border-0"
-          type="button"
+          to="/resetPassword"
         >
           忘記密碼？
-        </button>
+        </NuxtLink>
       </div>
       <button
         class="btn btn-primary-100 w-100 py-4 text-neutral-0 fw-bold"

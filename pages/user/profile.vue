@@ -172,6 +172,14 @@ const updateUserInfo = async () => {
     loader.hide();
   }
 };
+
+// seo
+useSeoMeta({
+  title: () => `Freyja | 個人資料`,
+  ogTitle: () => `Freyja | 個人資料`,
+  twitterCard: "summary_large_image",
+  twitterTitle: () => `Freyja | 個人資料`,
+});
 </script>
 
 <template>

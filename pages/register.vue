@@ -100,6 +100,14 @@ const processRegistration = async (requsetBody) => {
     loader.hide();
   }
 };
+
+// seo
+useSeoMeta({
+  title: () => `Freyja | 註冊`,
+  ogTitle: () => `Freyja | 註冊`,
+  twitterCard: "summary_large_image",
+  twitterTitle: () => `Freyja | 註冊`,
+});
 </script>
 
 <template>

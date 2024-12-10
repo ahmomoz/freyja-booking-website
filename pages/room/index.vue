@@ -20,6 +20,16 @@ const { data: roomsList } = await useFetch(`/rooms`, {
     navigateTo("/");
   },
 });
+
+// seo
+useSeoMeta({
+  title: () => `Freyja | 客房旅宿`,
+  ogTitle: () => `Freyja | 客房旅宿`,
+  ogImage: () => `${roomsList.value[0].imageUrl}`,
+  twitterCard: "summary_large_image",
+  twitterTitle: () => `Freyja | 客房旅宿`,
+  twitterImage: () => `${roomsList.value[0].imageUrl}`,
+});
 </script>
 
 <template>
