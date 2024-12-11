@@ -24,7 +24,7 @@ const countDateDiffs = (start, end) => {
 const { id } = route.params;
 const token = useCookie("auth");
 const handleFetchError = ({ response }) => {
-  const { message } = response._data || {};
+  const { message } = response?._data || {};
   $swal.fire({
     position: "center",
     icon: "error",

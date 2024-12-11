@@ -6,20 +6,14 @@ definePageMeta({
 
 const { $swal } = useNuxtApp();
 const { $formatPrice } = useNuxtApp();
+const latestBooking = computed(
+  () => bookingList.value[bookingList.value.length - 1] || {}
+);
 
 // 取得環境變數API
 const {
   public: { apiBaseUrl },
 } = useRuntimeConfig();
-
-// loading
-const { $useLoading } = useNuxtApp();
-
-const loadingHandler = $useLoading({
-  backgroundColor: "gray",
-  loader: "dots",
-  "is-full-page": false,
-});
 
 // 計算天數
 const countDateDiffs = (start, end) => {
@@ -30,7 +24,7 @@ const countDateDiffs = (start, end) => {
 
 const token = useCookie("auth");
 const handleFetchError = ({ response }) => {
-  const { message } = response._data || {};
+  const { message } = response?._data || {};
   $swal.fire({
     position: "center",
     icon: "error",
@@ -64,10 +58,9 @@ const showMoreList = () => {
 
 // 取消訂單預定
 const cancelBooking = async (id) => {
-  const loader = loadingHandler.show();
   try {
     await $fetch(`/orders/${id}`, {
-      baseURL: "apiBaseUrl",
+      baseURL: apiBaseUrl,
       method: "DELETE",
       headers: {
         Authorization: token.value,
@@ -82,10 +75,9 @@ const cancelBooking = async (id) => {
       timer: 1500,
     });
 
-    loader.hide();
     window.location.reload();
   } catch (error) {
-    const message = error.response._data.message;
+    const message = error.response?._data.message;
     $swal.fire({
       position: "center",
       icon: "error",
@@ -93,7 +85,6 @@ const cancelBooking = async (id) => {
       showConfirmButton: false,
       timer: 1500,
     });
-    loader.hide();
   }
 };
 
@@ -106,7 +97,7 @@ useSeoMeta({
 });
 </script>
 <template>
-  <div class="row gap-6 gap-md-0">
+  <div class="row gap-6 gap-md-0" v-if="bookingList">
     <div class="col-12 col-md-7">
       <div
         class="rounded-3xl d-flex flex-column gap-6 gap-md-10 p-4 p-md-10 bg-neutral-0"
@@ -114,7 +105,7 @@ useSeoMeta({
       >
         <div>
           <p class="mb-2 text-neutral-80 fs-8 fs-md-7 fw-medium">
-            預訂參考編號： {{ bookingList[bookingList.length - 1]._id }}
+            預訂參考編號： {{ latestBooking?._id }}
           </p>
           <h2 class="mb-0 text-neutral-100 fs-7 fs-md-5 fw-bold">
             即將來的行程
@@ -123,8 +114,8 @@ useSeoMeta({
 
         <img
           class="img-fluid rounded-3"
-          :src="bookingList[bookingList.length - 1].roomId.imageUrl"
-          :alt="bookingList[bookingList.length - 1].roomId.name"
+          :src="latestBooking?.roomId.imageUrl"
+          :alt="latestBooking?.roomId.name"
         />
 
         <section class="d-flex flex-column gap-6">
@@ -132,10 +123,10 @@ useSeoMeta({
             class="d-flex align-items-center mb-0 text-neutral-80 fs-8 fs-md-6 fw-bold"
           >
             <p class="mb-0">
-              {{ bookingList[bookingList.length - 1].roomId.name }}，{{
+              {{ latestBooking?.roomId.name }}，{{
                 countDateDiffs(
-                  bookingList[bookingList.length - 1].checkInDate,
-                  bookingList[bookingList.length - 1].checkOutDate
+                  latestBooking?.checkInDate,
+                  latestBooking?.checkOutDate
                 )
               }}
               晚
@@ -144,22 +135,16 @@ useSeoMeta({
               class="d-inline-block mx-4 bg-neutral-80"
               style="width: 1px; height: 18px"
             />
-            <p class="mb-0">
-              住宿人數：{{ bookingList[bookingList.length - 1].peopleNum }} 位
-            </p>
+            <p class="mb-0">住宿人數：{{ latestBooking?.peopleNum }} 位</p>
           </h3>
 
           <div class="text-neutral-80 fs-8 fs-md-7 fw-bold">
             <p class="title-deco mb-2">
-              入住：<span
-                v-timeFormat="bookingList[bookingList.length - 1].checkInDate"
-              ></span
+              入住：<span v-timeFormat="latestBooking?.checkInDate"></span
               >，15:00 可入住
             </p>
             <p class="title-deco mb-0">
-              退房：<span
-                v-timeFormat="bookingList[bookingList.length - 1].checkOutDate"
-              ></span
+              退房：<span v-timeFormat="latestBooking?.checkOutDate"></span
               >，12:00 前退房
             </p>
           </div>
@@ -168,10 +153,10 @@ useSeoMeta({
             NT$
             {{
               $formatPrice(
-                bookingList[bookingList.length - 1].roomId.price *
+                latestBooking?.roomId.price *
                   countDateDiffs(
-                    bookingList[bookingList.length - 1].checkInDate,
-                    bookingList[bookingList.length - 1].checkOutDate
+                    latestBooking?.checkInDate,
+                    latestBooking?.checkOutDate
                   )
               )
             }}
@@ -189,8 +174,7 @@ useSeoMeta({
           >
             <li
               class="flex-item d-flex gap-2"
-              v-for="facility in bookingList[bookingList.length - 1].roomId
-                .facilityInfo"
+              v-for="facility in latestBooking?.roomId.facilityInfo"
               :key="facility.title"
             >
               <Icon
@@ -220,8 +204,7 @@ useSeoMeta({
           >
             <li
               class="flex-item d-flex gap-2"
-              v-for="amenity in bookingList[bookingList.length - 1].roomId
-                .amenityInfo"
+              v-for="amenity in latestBooking?.roomId.amenityInfo"
               :key="amenity.title"
             >
               <Icon
@@ -253,7 +236,7 @@ useSeoMeta({
             取消預訂
           </button>
           <NuxtLink
-            :to="`/room/${bookingList[bookingList.length - 1].roomId._id}`"
+            :to="`/room/${latestBooking?.roomId._id}`"
             class="btn btn-primary-100 text-neutral-0 w-50 py-4 fw-bold"
             type="button"
           >
@@ -338,6 +321,18 @@ useSeoMeta({
     </div>
   </div>
 
+  <div class="row" v-else>
+    <div class="col-12">
+      <div
+        class="rounded-3xl d-flex flex-column gap-6 gap-md-10 p-4 p-md-10 bg-neutral-0"
+        style="max-width: 730px"
+      >
+        <h1>目前沒有訂單</h1>
+        <NuxtLink to="/room"> 點我前往訂房 </NuxtLink>
+      </div>
+    </div>
+  </div>
+
   <div id="cancelModal" class="modal fade" tabindex="-1">
     <div
       class="modal-dialog modal-dialog-centered align-items-end align-items-md-center m-0 mx-md-auto h-100"
@@ -368,7 +363,7 @@ useSeoMeta({
           <button
             type="button"
             class="btn btn-primary-100 flex-grow-1 m-0 py-4 text-white fw-bold"
-            @click="cancelBooking(bookingList[bookingList.length - 1]._id)"
+            @click="cancelBooking(latestBooking?._id)"
           >
             確定取消
           </button>

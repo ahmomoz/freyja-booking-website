@@ -51,7 +51,7 @@ watch(
 // 取得使用者資料
 const token = useCookie("auth");
 const handleFetchError = ({ response }) => {
-  const { message } = response._data || {};
+  const { message } = response?._data || {};
   $swal.fire({
     position: "center",
     icon: "error",
@@ -116,7 +116,7 @@ const putPassword = async () => {
     loader.hide();
     window.location.reload();
   } catch (error) {
-    const message = error.response._data.message;
+    const message = error.response?._data.message;
     $swal.fire({
       position: "center",
       icon: "error",
@@ -161,7 +161,7 @@ const updateUserInfo = async () => {
     loader.hide();
     window.location.reload();
   } catch (error) {
-    const message = error.response._data.message;
+    const message = error.response?._data.message;
     $swal.fire({
       position: "center",
       icon: "error",

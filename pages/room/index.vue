@@ -15,7 +15,7 @@ const { data: roomsList } = await useFetch(`/rooms`, {
     return result;
   },
   onResponseError({ response }) {
-    const { message } = response._data;
+    const { message } = response?._data;
     console.error("Error", message);
     navigateTo("/");
   },

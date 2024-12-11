@@ -89,7 +89,7 @@ const processRegistration = async (requsetBody) => {
     loader.hide();
     navigateTo("/login");
   } catch (error) {
-    const message = error.response._data.message;
+    const message = error.response?._data.message;
     $swal.fire({
       position: "center",
       icon: "error",

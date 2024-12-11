@@ -10,7 +10,7 @@ const {
 
 // API錯誤處理
 const handleFetchError = ({ response }) => {
-  const { message } = response._data || {};
+  const { message } = response?._data || {};
   $swal.fire({
     position: "center",
     icon: "error",

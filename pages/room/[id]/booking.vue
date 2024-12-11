@@ -22,7 +22,7 @@ const { bookingResult } = storeToRefs(bookingStore);
 const { id } = route.params;
 const token = useCookie("auth");
 const handleFetchError = ({ response }) => {
-  const { message } = response._data || {};
+  const { message } = response?._data || {};
   $swal.fire({
     position: "center",
     icon: "error",
@@ -139,7 +139,7 @@ const confirmBooking = async () => {
 
     router.push(`/room/bookingResult/${bookingId}`);
   } catch (error) {
-    const message = error.response._data.message;
+    const message = error.response?._data.message;
     $swal.fire({
       position: "center",
       icon: "error",
