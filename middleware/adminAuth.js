@@ -1,5 +1,6 @@
 export default defineNuxtRouteMiddleware(async () => {
   const nuxtApp = useNuxtApp();
+  const { $swal } = useNuxtApp();
 
   // 取得環境變數API
   const {
@@ -16,7 +17,7 @@ export default defineNuxtRouteMiddleware(async () => {
 
   const token = useCookie("auth");
   if (!token.value) {
-    navigateTo("/login");
+    navigateTo("/admin/login");
   }
 
   try {
@@ -29,6 +30,6 @@ export default defineNuxtRouteMiddleware(async () => {
     });
   } catch (error) {
     token.value = null;
-    return navigateTo("/login");
+    return navigateTo("/admin/login");
   }
 });

@@ -31,5 +31,6 @@ export const useDateTimeStore = defineStore("dateTime", () => {
     bookingPeople,
     bookingDate,
     handleDateChange,
+    formatDate
   };
 });

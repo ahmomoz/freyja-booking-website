@@ -1,7 +1,7 @@
 <script setup>
 definePageMeta({
   layout: "user",
-  middleware: ["auth"],
+  middleware: ["auth"]
 });
 
 const { $swal } = useNuxtApp();
