@@ -42,6 +42,16 @@ const [{ data: roomsList }, { data: newsList }, { data: culinaryList }] =
       onResponseError: handleFetchError,
     }),
   ]);
+
+// seo
+useSeoMeta({
+  title: () => `Freyja | 高雄頂級旅館 - 提供奢華住宿體驗`,
+  ogTitle: () => `Freyja | 高雄頂級旅館 - 提供奢華住宿體驗`,
+  ogImage: () => `${roomsList.value[0].imageUrl}`,
+  twitterCard: "summary_large_image",
+  twitterTitle: () => `Freyja | 高雄頂級旅館 - 提供奢華住宿體驗`,
+  twitterImage: () => `${roomsList.value[0].imageUrl}`,
+});
 </script>
 
 <template>
