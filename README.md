@@ -50,7 +50,8 @@ npm run dev
 
 ## 畫面截圖
 
-![page screenshot](blob:https://imgur.com/1b5a75eb-fa24-4e54-8ceb-67a060c19f3c)
+<img src="https://raw.githubusercontent.com/ahmomoz/img0106/refs/heads/main/freyja-booking-website-shot.png" alt="page-screenshot"/>
+
 
 ## 線上 Demo
 
