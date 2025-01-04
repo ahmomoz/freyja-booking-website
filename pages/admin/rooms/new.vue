@@ -298,7 +298,7 @@ useSeoMeta({
                   min="1"
                   class="form-control"
                   :class="{ 'is-invalid': errors['可入住最多人數'] }"
-                  rules="required"
+                  rules="required||greaterThanZero"
                   placeholder="請輸入最多人數"
                   v-model.number="room.maxPeople"
                 />
@@ -313,7 +313,7 @@ useSeoMeta({
                   min="0"
                   class="form-control"
                   :class="{ 'is-invalid': errors['入住價格'] }"
-                  rules="required"
+                  rules="required||greaterThanZero"
                   placeholder="請輸入入住價格"
                   v-model.number="room.price"
                 />

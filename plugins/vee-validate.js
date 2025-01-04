@@ -34,6 +34,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
     return true;
   });
+  defineRule("greaterThanZero", (value) => {
+    if (value <= 0) {
+      return "數值必須大於 0";
+    }
+    return true;
+  });
 
   // 設定多國語系與驗證訊息
   configure({
