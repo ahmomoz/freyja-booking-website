@@ -67,7 +67,13 @@ const daysCount = computed(() => {
   return differenceDay;
 });
 
-const MAX_BOOKING_PEOPLE = 10;
+// 從父元件接受訂房最大人數
+const props = defineProps({
+  MAX_BOOKING_PEOPLE: {
+    type: Number,
+    required: true
+  }
+});
 const bookingPeopleMobile = ref(1);
 
 const isConfirmDateOnMobile = ref(false);

@@ -489,7 +489,7 @@ useSeoMeta({
       </div>
     </section>
     <ClientOnly>
-      <DatePickerModal ref="datePickerModal" />
+      <DatePickerModal ref="datePickerModal" :MAX_BOOKING_PEOPLE = "MAX_BOOKING_PEOPLE"/>
     </ClientOnly>
   </main>
 </template>
