@@ -14,7 +14,7 @@ const {
 
 // 取得遠端資料
 const token = useCookie("auth");
-const { data: roomsList } = await useFetch(`/admin/rooms`, {
+const { data: roomsList, refresh } = await useFetch(`/admin/rooms`, {
   baseURL: apiBaseUrl,
   method: "GET",
   headers: {
@@ -44,10 +44,10 @@ const deleteRoom = (title, id) => {
       confirmButtonText: "確定刪除",
       cancelButtonText: "取消",
     })
-    .then((result) => {
+    .then(async(result) => {
       if (result.isConfirmed) {
         try {
-          $fetch(`/admin/rooms/${id}`, {
+          await $fetch(`/admin/rooms/${id}`, {
             baseURL: apiBaseUrl,
             method: "DELETE",
             headers: {
@@ -63,7 +63,7 @@ const deleteRoom = (title, id) => {
             timer: 1500,
           });
 
-          window.location.reload();
+          refresh();
         } catch (error) {
           const message =
             error.response?._data.message || "發生未知錯誤，請稍後再試";

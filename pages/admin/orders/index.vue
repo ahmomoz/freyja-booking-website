@@ -21,7 +21,7 @@ const countDateDiffs = (start, end) => {
 
 // 取得遠端資料
 const token = useCookie("auth");
-const { data: orderList } = await useFetch(`/admin/orders`, {
+const { data: orderList, refresh } = await useFetch(`/admin/orders`, {
   baseURL: apiBaseUrl,
   method: "GET",
   headers: {
@@ -51,10 +51,10 @@ const deleteOrder = (id) => {
       confirmButtonText: "確定刪除",
       cancelButtonText: "取消",
     })
-    .then((result) => {
+    .then(async (result) => {
       if (result.isConfirmed) {
         try {
-          $fetch(`/admin/orders/${id}`, {
+          await $fetch(`/admin/orders/${id}`, {
             baseURL: apiBaseUrl,
             method: "DELETE",
             headers: {
@@ -70,7 +70,7 @@ const deleteOrder = (id) => {
             timer: 1500,
           });
 
-          window.location.reload();
+          refresh();
         } catch (error) {
           const message =
             error.response?._data.message || "發生未知錯誤，請稍後再試";

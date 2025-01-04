@@ -12,8 +12,7 @@ const {
 
 // 引入 dateTimeStore 相關資料
 const dateTimeStore = useDateTimeStore();
-const { bookingPeople } = storeToRefs(dateTimeStore);
-const { daysCount } = storeToRefs(dateTimeStore);
+const { bookingPeople, daysCount } = storeToRefs(dateTimeStore);
 const { bookingDate } = dateTimeStore;
 const bookingStore = useBookingStore();
 const { createBooking } = bookingStore;

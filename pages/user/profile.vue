@@ -61,7 +61,7 @@ const handleFetchError = ({ response }) => {
   });
   navigateTo("/");
 };
-const { data: userData } = await useFetch(`/user`, {
+const { data: userData, refresh } = await useFetch(`/user`, {
   baseURL: apiBaseUrl,
   method: "GET",
   headers: {
@@ -114,7 +114,7 @@ const putPassword = async () => {
     });
 
     loader.hide();
-    window.location.reload();
+    refresh();
   } catch (error) {
     const message = error.response?._data.message;
     $swal.fire({
@@ -159,7 +159,7 @@ const updateUserInfo = async () => {
     });
 
     loader.hide();
-    window.location.reload();
+    refresh();
   } catch (error) {
     const message = error.response?._data.message;
     $swal.fire({

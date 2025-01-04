@@ -97,7 +97,7 @@ onUnmounted(() => {
                 >
                   <li>
                     <NuxtLink to="/user/profile" class="dropdown-item px-6 py-4"
-                      >我的帳戶</NuxtLink
+                      >用戶專區</NuxtLink
                     >
                   </li>
                   <li>
@@ -121,7 +121,7 @@ onUnmounted(() => {
                   to="/user/profile"
                   class="nav-link p-6 text-neutral-0 d-block"
                 >
-                  我的帳戶
+                  用戶專區
                 </NuxtLink>
                 <a
                   class="nav-link text-neutral-0 p-6 d-block"

@@ -13,7 +13,7 @@ const {
 
 // 取得遠端資料
 const token = useCookie("auth");
-const { data: culinaryList } = await useFetch(`/admin/culinary`, {
+const { data: culinaryList, refresh } = await useFetch(`/admin/culinary`, {
   baseURL: apiBaseUrl,
   method: "GET",
   headers: {
@@ -43,10 +43,10 @@ const deleteCulinary = (id) => {
       confirmButtonText: "確定刪除",
       cancelButtonText: "取消",
     })
-    .then((result) => {
+    .then(async(result) => {
       if (result.isConfirmed) {
         try {
-          $fetch(`/admin/culinary/${id}`, {
+          await $fetch(`/admin/culinary/${id}`, {
             baseURL: apiBaseUrl,
             method: "DELETE",
             headers: {
@@ -62,7 +62,7 @@ const deleteCulinary = (id) => {
             timer: 1500,
           });
 
-          window.location.reload();
+          refresh();
         } catch (error) {
           const message =
             error.response?._data.message || "發生未知錯誤，請稍後再試";

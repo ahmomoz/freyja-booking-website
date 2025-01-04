@@ -1,7 +1,7 @@
 <script setup>
 definePageMeta({
   layout: "user",
-  middleware: ["auth"]
+  middleware: ["auth"],
 });
 
 const { $swal } = useNuxtApp();
@@ -36,19 +36,17 @@ const handleFetchError = ({ response }) => {
 };
 
 // 取得訂單資料
-const [{ data: bookingList }] = await Promise.all([
-  useFetch(`/orders`, {
-    baseURL: apiBaseUrl,
-    headers: {
-      Authorization: token.value,
-    },
-    transform: (response) =>
-      response?.result.filter((item) => {
-        return item.status === 0;
-      }),
-    onResponseError: handleFetchError,
-  }),
-]);
+const { data: bookingList, refresh } = await useFetch(`/orders`, {
+  baseURL: apiBaseUrl,
+  method: "GET",
+  headers: {
+    Authorization: token.value,
+  },
+  transform: (response) => {
+    return response.result.filter((item) => item.status === 0);
+  },
+  onResponseError: handleFetchError,
+});
 
 // 訂單顯示筆數
 const visibleCount = ref(3);
@@ -75,7 +73,7 @@ const cancelBooking = async (id) => {
       timer: 1500,
     });
 
-    window.location.reload();
+    refresh();
   } catch (error) {
     const message = error.response?._data.message;
     $swal.fire({
@@ -97,7 +95,7 @@ useSeoMeta({
 });
 </script>
 <template>
-  <div class="row gap-6 gap-md-0" v-if="bookingList">
+  <div class="row gap-6 gap-md-0" v-if="bookingList.length !== 0">
     <div class="col-12 col-md-7">
       <div
         class="rounded-3xl d-flex flex-column gap-6 gap-md-10 p-4 p-md-10 bg-neutral-0"

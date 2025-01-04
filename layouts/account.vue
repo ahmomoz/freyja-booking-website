@@ -1,8 +1,11 @@
 <script setup>
-// 判斷是否已登入，是的話彈回首頁
+const route = useRoute();
+// 判斷是否已登入，是的話彈回首頁 / 後台首頁
 const token = useCookie("auth");
 onMounted(() => {
-  if (token.value) {
+  if (token.value && route.name === "admin-login") {
+    navigateTo("/admin");
+  } else if (token.value) {
     navigateTo("/");
   }
 });
