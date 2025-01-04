@@ -92,28 +92,36 @@ useSeoMeta({
       <h1 class="text-neutral-0 fw-bold">立即開始旅程</h1>
     </div>
 
-    <form class="mb-10">
+    <VForm v-slot="{ errors, meta, resetForm }" class="mb-10">
       <div class="mb-4 fs-8 fs-md-7">
         <label class="mb-2 text-neutral-0 fw-bold" for="email">
           電子信箱
         </label>
-        <input
+        <VField
           id="email"
-          class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
-          placeholder="請輸入信箱"
+          name="電子信箱"
           type="email"
+          class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
+          :class="{ 'is-invalid': errors['電子信箱'] }"
+          placeholder="請輸入電子信箱"
+          rules="required|email"
           v-model="userLoginObject.email"
         />
+        <VErrorMessage name="電子信箱" class="invalid-feedback" />
       </div>
       <div class="mb-4 fs-8 fs-md-7">
         <label class="mb-2 text-neutral-0 fw-bold" for="password"> 密碼 </label>
-        <input
+        <VField
           id="password"
-          class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
-          placeholder="請輸入密碼"
+          name="密碼"
           type="password"
+          class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
+          :class="{ 'is-invalid': errors['密碼'] }"
+          placeholder="請輸入密碼"
+          rules="required||password"
           v-model="userLoginObject.password"
         />
+        <VErrorMessage name="密碼" class="invalid-feedback" />
       </div>
       <div
         class="d-flex justify-content-between align-items-center mb-10 fs-8 fs-md-7"
@@ -141,10 +149,11 @@ useSeoMeta({
         class="btn btn-primary-100 w-100 py-4 text-neutral-0 fw-bold"
         type="button"
         @click="loginAccount(userLoginObject)"
+        :disabled="!meta.valid"
       >
         會員登入
       </button>
-    </form>
+    </VForm>
 
     <p class="mb-0 fs-8 fs-md-7">
       <span class="me-2 text-neutral-0 fw-medium">沒有會員嗎？</span>

@@ -16,6 +16,7 @@ const userRegisterObject = ref({
     detail: "",
   },
 });
+const isAgree = ref(false);
 
 // 取得環境變數API
 const {
@@ -35,14 +36,6 @@ const isEmailAndPasswordValid = ref(false);
 const checkPassword = ref();
 const errorMessage = ref();
 const isEmailAndPasswordValidFn = () => {
-  if (
-    userRegisterObject.value.email.trim() === "" ||
-    userRegisterObject.value.password.trim() === ""
-  ) {
-    errorMessage.value = "請確認所有欄位已填寫";
-    return false;
-  }
-
   if (userRegisterObject.value.password !== checkPassword.value) {
     errorMessage.value = "兩次輸入的密碼不一致";
     return false;
@@ -84,6 +77,14 @@ const processRegistration = async (requsetBody) => {
       body: {
         ...requsetBody,
       },
+    });
+
+    $swal.fire({
+      position: "center",
+      icon: "success",
+      title: "註冊成功",
+      showConfirmButton: false,
+      timer: 1500,
     });
 
     loader.hide();
@@ -157,42 +158,58 @@ useSeoMeta({
     </div>
 
     <div class="mb-4">
-      <form :class="{ 'd-none': isEmailAndPasswordValid }" class="mb-4">
+      <VForm
+        v-slot="{ errors, meta, resetForm }"
+        :class="{ 'd-none': isEmailAndPasswordValid }"
+        class="mb-4"
+      >
         <div class="mb-4 fs-8 fs-md-7">
           <label class="mb-2 text-neutral-0 fw-bold" for="email">
-            電子信箱
+            *電子信箱
           </label>
-          <input
+          <VField
             id="email"
-            class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
-            placeholder="hello@exsample.com"
+            name="電子信箱"
             type="email"
+            class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
+            :class="{ 'is-invalid': errors['電子信箱'] }"
+            placeholder="hello@exsample.com"
+            rules="required|email"
             v-model="userRegisterObject.email"
           />
+          <VErrorMessage name="電子信箱" class="invalid-feedback" />
         </div>
         <div class="mb-4 fs-8 fs-md-7">
           <label class="mb-2 text-neutral-0 fw-bold" for="password">
-            密碼
+            *密碼
           </label>
-          <input
+          <VField
             id="password"
-            class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
-            placeholder="請輸入密碼"
+            name="密碼"
             type="password"
+            class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
+            :class="{ 'is-invalid': errors['密碼'] }"
+            placeholder="請輸入密碼 ( 需8碼以上 )"
+            rules="required||password"
             v-model="userRegisterObject.password"
           />
+          <VErrorMessage name="密碼" class="invalid-feedback" />
         </div>
         <div class="mb-10 fs-8 fs-md-7">
           <label class="mb-2 text-neutral-0 fw-bold" for="confirmPassword">
-            確認密碼
+            *確認密碼
           </label>
-          <input
+          <VField
             id="confirmPassword"
+            name="確認密碼"
             class="form-control p-4 text-neutral-100 fw-medium border-neutral-40"
+            :class="{ 'is-invalid': errors['確認密碼'] }"
             placeholder="請再輸入一次密碼"
             type="password"
+            rules="required||password"
             v-model="checkPassword"
           />
+          <VErrorMessage name="確認密碼" class="invalid-feedback" />
         </div>
         <div v-if="errorMessage" class="text-danger text-end">
           {{ errorMessage }}
@@ -201,32 +218,45 @@ useSeoMeta({
           class="btn btn-neutral-40 w-100 py-4 text-neutral-60 fw-bold"
           type="button"
           @click="isEmailAndPasswordValidFn"
+          :disabled="!meta.valid"
         >
           下一步
         </button>
-      </form>
-      <form :class="{ 'd-none': !isEmailAndPasswordValid }" class="mb-4">
+      </VForm>
+      <VForm
+        v-slot="{ errors, meta, resetForm }"
+        :class="{ 'd-none': !isEmailAndPasswordValid }"
+        class="mb-4"
+      >
         <div class="mb-4 fs-8 fs-md-7">
           <label class="mb-2 text-neutral-0 fw-bold" for="name"> 姓名 </label>
-          <input
+          <VField
             id="name"
-            class="form-control p-4 text-neutral-100 fw-medium border-neutral-40 rounded-3"
-            placeholder="請輸入姓名"
+            name="姓名"
             type="text"
+            class="form-control p-4 text-neutral-100 fw-medium border-neutral-40 rounded-3"
+            :class="{ 'is-invalid': errors['姓名'] }"
+            placeholder="請輸入姓名"
+            rules="required|username"
             v-model="userRegisterObject.name"
           />
+          <VErrorMessage name="姓名" class="invalid-feedback" />
         </div>
         <div class="mb-4 fs-8 fs-md-7">
           <label class="mb-2 text-neutral-0 fw-bold" for="phone">
             手機號碼
           </label>
-          <input
+          <VField
             id="phone"
-            class="form-control p-4 text-neutral-100 fw-medium border-neutral-40 rounded-3"
-            placeholder="請輸入手機號碼"
+            name="手機號碼"
             type="tel"
+            class="form-control p-4 text-neutral-100 fw-medium border-neutral-40 rounded-3"
+            :class="{ 'is-invalid': errors['手機號碼'] }"
+            placeholder="請輸入手機號碼"
+            rules="required|isPhone"
             v-model="userRegisterObject.phone"
           />
+          <VErrorMessage name="手機號碼" class="invalid-feedback" />
         </div>
         <div class="mb-4 fs-8 fs-md-7">
           <label class="mb-2 text-neutral-0 fw-bold" for="birth"> 生日 </label>
@@ -263,20 +293,28 @@ useSeoMeta({
             地址
           </label>
           <div>
-            <input
+            <VField
               id="zipcode"
+              name="郵遞區號"
               type="text"
               class="form-control p-4 rounded-3 mb-2"
+              :class="{ 'is-invalid': errors['郵遞區號'] }"
               placeholder="請輸入郵遞區號"
+              rules="required"
               v-model="userRegisterObject.address.zipcode"
             />
-            <input
+            <VErrorMessage name="郵遞區號" class="invalid-feedback" />
+            <VField
               id="address"
+              name="地址"
               type="text"
               class="form-control p-4 rounded-3"
               placeholder="請輸入詳細地址"
+              :class="{ 'is-invalid': errors['地址'] }"
+              rules="required"
               v-model="userRegisterObject.address.detail"
             />
+            <VErrorMessage name="地址" class="invalid-feedback" />
           </div>
         </div>
 
@@ -287,7 +325,7 @@ useSeoMeta({
             id="agreementCheck"
             class="form-check-input"
             type="checkbox"
-            value=""
+            v-model="isAgree"
           />
           <label class="form-check-label fw-bold" for="agreementCheck">
             我已閱讀並同意本網站個資使用規範
@@ -297,10 +335,11 @@ useSeoMeta({
           class="btn btn-primary-100 w-100 py-4 text-neutral-0 fw-bold"
           type="button"
           @click="processRegistration(userRegisterObject)"
+          :disabled="!meta.valid || !isAgree"
         >
           完成註冊
         </button>
-      </form>
+      </VForm>
     </div>
 
     <p class="mb-0 fs-8 fs-md-7">

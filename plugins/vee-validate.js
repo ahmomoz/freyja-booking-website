@@ -1,6 +1,5 @@
 import { defineRule, configure } from "vee-validate";
 import { required, min, email } from "@vee-validate/rules";
-
 import { localize, setLocale } from "@vee-validate/i18n";
 import zhTW from "@vee-validate/i18n/dist/locale/zh_TW.json";
 
@@ -21,6 +20,21 @@ export default defineNuxtPlugin((nuxtApp) => {
       "使用者名稱只能包含字母或中文，且至少需要兩個字元"
     );
   });
+  defineRule("password", (value) => {
+    if (!value) {
+      return "密碼為必填項目";
+    }
+    if (value.length < 8) {
+      return "密碼需至少 8 碼以上";
+    }
+    const hasLetter = /[a-zA-Z]/.test(value);
+    const hasNumber = /\d/.test(value);
+    if (!hasLetter || !hasNumber) {
+      return "密碼必須包含字母和數字";
+    }
+    return true;
+  });
+
   // 設定多國語系與驗證訊息
   configure({
     // 載入繁體中文的設定檔，產生繁體中文的驗證訊息
